@@ -9,9 +9,11 @@ Equality Constraints", J.J. Brust, R.F. Marcia, C.G. Petra, 2018.
 
 Four folders are contained in this project:
 
-main 	- Implementations of Algorithm 1, and Algorithm 2,</br>
-netlib 	- Problems from netlib (.mps) format, and routine to read mps into
-		MATLAB, </br>
-solvers - External Algorithms for comparisons, </br>
-tests 	- Numerical experiments, including auxiliary files. Run an experiment
-		from this folder to test the methods.
+<ol>
+	<li>main 	- Implementations of Algorithm 1, and Algorithm 2,</li>
+	<li>netlib 	- Problems from netlib (.mps) format, and routine to read mps into
+		MATLAB,</li>
+	<li>solvers - External Algorithms for comparisons, </li>
+	<li>tests 	- Numerical experiments, including auxiliary files. Run an experiment
+		from this folder to test the methods.</li>
+</ol>		
