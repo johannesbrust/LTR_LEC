@@ -125,20 +125,20 @@ while ischar(tline)
         x0              = A'*((A*A')\b);
         
         cons           = @(x)( const_quad_arg(x,A,b));
-        obj            = @cutest
+        obj            = @cutest_fun;
         
-        paramsl2            = params;
-        paramsl2.maxitroot  = 10;
-        paramsl2.epsroot    = 1e-5;
+        options_const_l2            = options_const;
+        options_const_l2.maxitroot  = 10;
+        options_const_l2.epsroot    = 1e-5;
                        
         % SC
          s=1;
          [ex(p,s),numf(p,s),numg(p,s),numit(p,s),tcpu(s,:,p),tract(p,s)]=...
-                runAlgorithm(@LTRSC_LEC_V1,@cutest_fun,cons,x0,params,numRuns); % LTRSC_LEC
+                runAlgorithm(@LTRSC_LEC_V1,obj,cons,x0,options_const,numRuns); % LTRSC_LEC
         % L2    
         s=s+1;        
         [ex(p,s),numf(p,s),numg(p,s),numit(p,s),tcpu(s,:,p),tract(p,s)]=...
-                runAlgorithm(@LTRL2_LEC_V1,@cutest_fun,cons,x0,params,numRuns); % LTRL2_LEC
+                runAlgorithm(@LTRL2_LEC_V1,obj,cons,x0,options_const_l2,numRuns); % LTRL2_LEC
         
         % fmincon
 %         s = s+1;
@@ -185,21 +185,28 @@ leg={   'TR-$(\mathbf{P},\infty)$',...
 %        'fmincon-ldl'};
                 
 types.colors = ['b' 'r' ]; % 'y'  'g'
-types.lines = {'-' '-' }; % '-'
+types.lines = {'-' '-.' }; % '-'
 types.markers = ['o' 'o' ]; %'o'
                 
 indAlg = [1 2];
 
-perf(exs(:,indAlg),times(:,indAlg),leg(indAlg),1,types);
+perf(ex(:,indAlg),t_aver(:,indAlg),leg(indAlg),1,types);
 print(gcf, '-dpsc2', fullfile(figpath,'time_EX_IV.eps'));
 
-perf(exs(:,indAlg),its(:,indAlg),leg(indAlg),1,types);
+perf(ex(:,indAlg),numit(:,indAlg),leg(indAlg),1,types);
 print(gcf, '-dpsc2', fullfile(figpath,'iter_EX_IV.eps'));
 
 save(fullfile(datapath,'EXPERIMENT_IV'),'ex','numit','t_aver','numf','numg','params','tract');
 
 close ALL;
 
+delete(     'AUTOMAT.d',...
+            'OUTSDIF.d',...
+            'ELFUN.f',...
+            'GROUP.f',...
+            'RANGE.f',...
+            'mcutest.mexa64');
+            
 % Restore warning settings
 warning(wtest);
 

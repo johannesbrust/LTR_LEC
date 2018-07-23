@@ -221,7 +221,7 @@ for i = 1:numn
     %% Solver 5: Fmincon interior-ldl 
     sidx    = sidx + 1;
     tic;
-    [x_fmin,f_fmin,ex_fmin,out_fmin] = fmincon(fun,x0,[],[],A,b,...
+    [x_fmin,f_fmin,~,out_fmin] = fmincon(fun,x0,[],[],A,b,...
         [],[],[],options_fmin_ldl);
     time_fmincon_ldl = toc;
     

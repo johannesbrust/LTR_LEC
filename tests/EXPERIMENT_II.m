@@ -129,6 +129,7 @@ for i = 1:numn
     
     %% TR-SC
     sidx                  = sidx + 1;
+    options_const.dflag   = 1;
     [x,f,outinfo]         = LTRSC_LEC_V1(fun,const,x0,options_const); % LTRSC_LEC
     
     err                  = abs(fopt-f)/abs(fopt);

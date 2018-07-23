@@ -51,6 +51,7 @@ clear;
 
 addpath ../main
 addpath ../auxiliary
+%addpath ../solvers/rsqp
 addpath ../netlib/readmps
 
 wtest       = warning('off','all');
@@ -88,7 +89,12 @@ numg            = zeros(numn,numsol);
 rks             = zeros(numn,1);
 
 %%------------------ Solver paramters --------------------------------- %%
-                                                                
+                                 
+% %% RSQP 
+% options_rsqp            = optimset2('GradObj','on', ...
+%                                     'Display','off',...
+%                                     'MaxIter', 1e6);
+
 %% L2-Const, SC-Const
 options_const.storedat  = 0;
 options_const.hastrrad  = 1;
@@ -163,7 +169,7 @@ for i = 1:numn
     
     sidx                = 0;
     %%-------------------- Solver calls --------------------------------%%
-    %% RSQP
+%     %% RSQP
 %     sidx                = sidx + 1;
 %     
 %     tic;
@@ -271,17 +277,28 @@ end
 
 %%------------------- Comparison plots ---------------------------------%%
 
-%   'RSQP',...
-leg={'TR-$(\mathbf{P},\infty)$',...
+%   
+% leg={   'RSQP',...
+%         'TR-$(\mathbf{P},\infty)$',...
+%         'TR-$\ell_2$',...       
+%         'fmincon-I-ldl',...
+%         'fmincon-I-cg'};
+       
+leg={   'TR-$(\mathbf{P},\infty)$',...
         'TR-$\ell_2$',...       
-        'fmincon-I-ldl'};%,...
-        %'FMINCON-TR'
+        'fmincon-I-ldl'};
+                            
+%types.colors    = ['k' 'b' 'r' 'm' 'g']; %'k' 'y'
+%types.lines     = {'-.', '-', '-.', '-','.-' }; %'-',   '-'
+%types.markers   = ['o' 'o' 'o' 'o' 'o']; %'s' 's'
                 
-types.colors    = ['b' 'r' 'y' ]; %'k' 'y'
-types.lines     = {'-', '-.', '-', }; %'-',   '-'
-types.markers   = ['o' 'o' 'o' ]; %'s' 's'
-                
-indAlg          = [1 2 3 ]; %4 5
+types.colors    = ['b' 'r' 'm']; %'k' 'y'
+types.lines     = {'-', '-.', '-'}; %'-',   '-'
+types.markers   = ['o' 'o' 'o']; %'s' 's'
+
+%indAlg          = [1 2 3 4 5]; %
+
+indAlg          = [1 2 3];
 
 perf(exs(:,indAlg),times(:,indAlg),leg(indAlg),1,types);
 print(gcf, '-dpsc2', fullfile(figpath,'time_EX_III.eps'));
@@ -290,7 +307,7 @@ print(gcf, '-dpsc2', fullfile(figpath,'time_EX_III.eps'));
 perf(exs(:,indAlg),its(:,indAlg),leg(indAlg),1,types);
 print(gcf, '-dpsc2', fullfile(figpath,'iter_EX_III.eps'));
 
-save(fullfile(datapath,'EXPERIMENT_III'),'exs','convs','nbs','its','times','numf','numg');
+save(fullfile(datapath,'EXPERIMENT_III_b'),'exs','convs','nbs','its','times','numf','numg');
 
 close ALL;
 

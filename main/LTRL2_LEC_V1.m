@@ -8,11 +8,11 @@ function [x,f,outinfo] = LTRL2_LEC_V1(fun,const,x0,params)
 %
 % Method developed for problems  
 %
-%       min f(x), s.t Ax = b_h,
+%       min f(x), s.t Ax = b,
 %
 % where
 %
-% f := fun(x), Ax - b_h := const(x).
+% f := fun(x), Ax - b := const(x).
 %
 % Solution approach is a sequential quadratic programming (SQP) technique,
 % where at a given iterate
@@ -23,13 +23,13 @@ function [x,f,outinfo] = LTRL2_LEC_V1(fun,const,x0,params)
 %
 % s_k = argmin {Q(s) := 1/2 s' B s + s'g}, subject to:
 %
-%    As = 0, || s ||_{P,infty} <= Delta_k,
+%    As = 0, ||s||_{2} <= Delta_k,
 %
-% where g = f'(x_k), B approx f''(x_k), A = h'(x_k), b = A(x_k)-b_h approx 0. 
+% where g = f'(x_k), B approx f''(x_k), A = const'(x_k), bh = A*x_k-b approx 0. 
 % The solution to the trust-region constraint is computed by solving
 % the equation:
 %
-% phi(sigma) = 1/|| s(sigma) ||_2 - 1/Delta_k.
+% phi(sigma) = 1/||s(sigma)||_2 - 1/Delta_k.
 %
 % At a solution it holds phi(sigma*)= 0 and sigma* > 0.
 %
@@ -99,25 +99,6 @@ function [x,f,outinfo] = LTRL2_LEC_V1(fun,const,x0,params)
 % of this software or its fitness for any particular purpose.
 
 %{
-
-J.B., 20/01/17 
-Modification to allow for different choices of gamma_perp in the
-trust-region subproblem. This is only applicable if the quasi-Newton step
-is rejected. The L-BFGS matrix has form
-
-    B_k = B_0 + V M V',
-
-             | gamma.I          0     |
-    B_0 =  P |   0        gamma_perp.I| P'
-
-J.B., 08/23/17
-Apply shape-changing norm to 
-
-	||Wg||_{P,inf} 	instead of ||g||_{P,inf},
-
-	where
-
-	W = I - A'(A B^{-1} A')^{-1} A B^{-1} (oblique projection)
 
 J.B., 08/24/17
 Modification of stopping criterion. Instead of the true solution, seek a
@@ -344,7 +325,6 @@ As          = zeros(mm,1); % A s
 N12         = zeros(m2,m2);
 
 %{ 
-
     Here 
     
         [gamma.N]^{-1} = [ (1/alpha -1).S'S,               (1/alpha -1).S'Y- alpha.T;
@@ -352,11 +332,8 @@ N12         = zeros(m2,m2);
                                Y'Y) ],                                                              
     where
 
-    alpha = gam/gam+sigma and gamma := gamma + sigma.
-    
+    alpha = gam/gam+sigma and gamma := gamma + sigma.    
 %}
-
-%betac   = 0; % B^{-1} B_1 = P diag(lam d1, beta.I) P'
 
 
 %% Initial check for optimality
@@ -682,10 +659,6 @@ while (mflag==1)
         numf    = numf+1;
         numg    = numg+1;
         
-%         [A,b]   = const(xt);
-%         numc    = numc+1;
-%         numcg   = numcg+1;
-        
         % Compare actual (ared) and predicted (pred) reductions 
         ared = ft-f;
         if abs(ared)/af<ftol
@@ -695,25 +668,11 @@ while (mflag==1)
             
         elseif ared<0
             
+            % Pred: Q(st) - Q(0) = 0.5 g'*st
+            
             pred=-0.5*alpha*(ng^2+p(1:numsy2)'*(Vg(1:numsy2).*nV(maskV)) - Ag(1:rankA)'*b2c(1:rankA));
             ratio=ared/pred;
-            
-            % Check if model reduction is computed correctly
-%             Vs_     = (V(:,maskV)'*st)./nV(maskV);
-%             pred_e  = 0.5*Vs_'*(linsolve([alpha*VV(1:numsy,1:numsy) alpha*L(1:numsy,1:numsy);...                    
-%                             alpha*L(1:numsy,1:numsy)' -diag(E(1:numsy))],Vs_));
-%             pred_e  = g'*st + 0.5*gamma*(st'*st) - pred_e;
-%             
-%             e1      = abs(pred-pred_e);
-%             
-%             pred_f  = 0.5*(g'*st);
-%             
-%             e2      = abs(pred_f-pred_e);
-%             
-%             e3      = abs((g'*gradp)-(ng^2-Ag(1:rankA)'*b2c(1:rankA)));
-%             
-%             e4      = abs((g'*V(:,maskV)*p(1:numsy2))-p(1:numsy2)'*(Vg(1:numsy2).*nV(maskV)));
-            
+                        
         else
             ratio = 0;
         end
